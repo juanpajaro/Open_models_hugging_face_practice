@@ -1,5 +1,5 @@
 pip install -U "huggingface_hub[cli]"
 Qwen modelo para generacion de texto
-huggingface-cli download Qwen/Qwen3-0.6B --local-dir ./model
+hf huggingface-cli download Qwen/Qwen3-0.6B --local-dir ./model
 sentence transformers para comparación coseno
-huggingface-cli download sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 --local-dir ./model_similarity
+hf huggingface-cli download sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 --local-dir ./model_similarity
