@@ -19,16 +19,17 @@ def evaluate_spanish_definition(student_answer: str, reference_answers: list[str
     student_embedding = embedder.encode(student_answer, convert_to_tensor=True)
     
     cos_scores = util.cos_sim(student_embedding, ref_embeddings)[0]
-    print(f"Cosine Similarity Scores: {cos_scores.tolist()}")  # Debugging line to print similarity scores
+    #print(f"Cosine Similarity Scores: {cos_scores.tolist()}")  # Debugging line to print similarity scores
     best_idx = int(torch.argmax(cos_scores))
     max_sim = float(cos_scores[best_idx])
     best_reference = reference_answers[best_idx]
+    #print(f"Best Reference: {best_reference}, Max Similarity: {max_sim:.3f}")  # Debugging line to print best reference and similarity
 
     # Fast-fail if completely off-topic
     if max_sim < 0.50:
-        return {
+        return {            
+            "status": "Incorrecto: la respuesta del estudiante está fuera de tema",
             "score": 0.0,
-            "status": "Incorrecto (Fuera de tema)",
             "similarity": round(max_sim, 3),
             "contradiction_prob": 0.0
         }
@@ -45,20 +46,20 @@ def evaluate_spanish_definition(student_answer: str, reference_answers: list[str
     # Step 3: Decision Logic & Grading Buckets
     if contradiction_prob > 0.60:
         score = 0.0
-        status = "Incorrecto (Contradicción detectada)"
+        status = "Incorrecto: se detecta contradicción con la respuesta del estudiante"
     elif max_sim >= 0.80 and entailment_prob > 0.50:
         score = 1.0
-        status = "Correcto (Automático)"
+        status = "Respuesta correcta de forma automatizada"
     elif max_sim >= 0.65:
         score = 0.5
-        status = "Parcial / Revisión manual"
+        status = "Parcial: Realizar revisión manual"
     else:
         score = 0.0
-        status = "Insuficiente / Revisión manual"
+        status = "Insuficiente información en la respuesta del estudiante para realizar una evaluación automática: Realizar revisión manual"
 
     return {
-        "score": score,
         "status": status,
+        "score": score,        
         "similarity": round(max_sim, 3),
         "entailment_prob": round(entailment_prob, 3),
         "contradiction_prob": round(contradiction_prob, 3)
